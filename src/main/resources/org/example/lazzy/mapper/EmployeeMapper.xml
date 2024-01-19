@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--the namespace need to be the full name of the corresponding reflected Java class
+in this class, it's com.example.mapper.UserMapper-->
+<mapper namespace="org.example.lazzy.mapper.EmployeeMapper">
+
+<!--    query sql
+
+    id: the only indicator of the sql (select * from tb_user);
+    we can name it as any as we like, if we want it is meaningful, we can assign a meaningful name to id.
+    For example, the sql of "select * from tb_user" is query all information, we can name it selectAll.
+
+    resultType: The return value type we needed (full name).
+    For example: com.example.pojo.User
+
+-->
+
+
+<!--    resultMap set the fields of the database to match the variables member in java code-->
+    <resultMap id="employeeResultMap" type="org.example.lazzy.pojo.Employee">
+        <result column="create_time" property="createTime"></result>
+        <result column="update_time" property="updateTime"></result>
+        <result column="create_user" property="createUser"></result>
+        <result column="update_user" property="updateUser"></result>
+    </resultMap>
+<!--    // dynamical batch brands deletion-->
+<!--    <delete id="deleteByIds">-->
+<!--        delete from tb_brand where id in-->
+<!--        <foreach collection="ids" item="id" separator="," open="(" close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--        ;-->
+<!--    </delete>-->
+
+<!--    <select id="selectByPageAndConditions" resultMap="brandResultMap">-->
+<!--        select * from tb_brand-->
+<!--        <where>-->
+<!--            <if test="brand.brandName != null and brand.brandName != '' ">-->
+<!--                and brand_name like #{brand.brandName}-->
+<!--            </if>-->
+<!--            <if test="brand.companyName != null and brand.companyName != '' ">-->
+<!--                and company_name like #{brand.companyName}-->
+<!--            </if>-->
+
+<!--            <if test="brand.status != null">-->
+<!--                and status = #{brand.status}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        limit #{begin}, #{size}-->
+<!--    </select>-->
+
+<!--    <select id="totalByConditions" resultType="java.lang.Integer">-->
+<!--        select count(*) from tb_brand-->
+<!--        <where>-->
+<!--            <if test="brandName != null and brandName != '' ">-->
+<!--                and brand_name like #{brandName}-->
+<!--            </if>-->
+<!--            <if test="companyName != null and companyName != '' ">-->
+<!--                and company_name like #{companyName}-->
+<!--            </if>-->
+
+<!--            <if test="status != null">-->
+<!--                and status = #{status}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
+
+
+
+
+    <!--   query total conditions -->
+    <select id="totalByConditions" resultType="java.lang.Integer">
+        select count(*) from employee
+        <where>
+            <if test="username != null and username != '' ">
+                and name like #{name}
+            </if>
+        </where>
+    </select>
+
+<!--       query em by conditions-->
+        <select id="selectByPageAndConditions" resultMap="employeeResultMap">
+            select * from employee
+            <where>
+                <if test="name != null and name != '' ">
+                    and name like #{name}
+                </if>
+            </where>
+            limit #{startIndex}, #{pageSize};
+        </select>
+
+    <!--       update user info-->
+    <update id="updateInfo">
+        update employee
+        <set>
+            <if test="name != null and name != '' ">
+                name = #{name},
+            </if>
+            <if test="username != null and username != '' ">
+                username = #{username},
+            </if>
+            <if test="password != null and password != '' ">
+                password = #{password},
+            </if>
+            <if test="phone != null and phone != '' ">
+                phone = #{phone},
+            </if>
+            <if test="sex != null and sex != '' ">
+                sex = #{sex},
+            </if>
+            <if test="idNumber != null and idNumber != '' ">
+                id_number = #{idNumber},
+            </if>
+            <if test="status != null ">
+                status = #{status},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="createUser != null ">
+                create_user = #{createUser},
+            </if>
+            update_time = #{updateTime}, update_user = #{updateUser}
+        </set>
+
+        where id = #{id}
+    </update>
+
+    <!--   query em by conditions -->
+<!--    <select id="selectByPageAndConditions" resultType="employeeResultMap">-->
+<!--        select * from employee-->
+<!--        <where>-->
+<!--            <if test="employee.username != null and employee.username != '' ">-->
+<!--                and username like #{username}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        limit #{startIndex}, #{pageSize};-->
+<!--    </select>-->
+
+</mapper>

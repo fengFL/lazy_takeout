@@ -1,0 +1,35 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: lazy_takeaway
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lazy_takeaway
+    username: root
+    password: liufeng
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  redis:
+    host: 192.168.1.15
+    port: 6379
+    password: liufeng
+    database: 0
+    # jedis is used in the base of spring boot
+    jedis:
+      # Redis connection pool configuration
+      pool:
+        max-active: 8 # max of connections
+        max-wait: 1ms # max waiting time
+        max-idle: 4 # max idle connections
+        min-idle: 0 # min idle connections
+
+mybatis:
+  configuration:
+    # mapping company_name ---> companyName
+    map-underscore-to-camel-case: true
+
+# define a variable for the storage location of imgs
+lazzy:
+  path: /users/grumy/imgs/
+
