@@ -10,11 +10,15 @@ import org.example.lazzy.service.CategoryService;
 import org.example.lazzy.service.DishFlavorService;
 import org.example.lazzy.service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +35,9 @@ public class DishController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      *  Add dish and dish flavors
      *  Since we do not have a pojo can match the json from the client,
@@ -41,6 +48,16 @@ public class DishController {
     @PostMapping
     public Result<String> addDish(@RequestBody DishDto dishDto){
         dishService.addDish(dishDto);
+
+        // clear all the cache for dishes
+//        Set keys = redisTemplate.keys("dish_*"); // get the keys start with "dish_"
+//        redisTemplate.delete(keys); // delete the keys (clear cache)
+
+        // precisely clear cache
+        // get the key
+        String key = "dish_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key); // delele the cache for the key
+
         return Result.success("add dish successful");
     }
 
@@ -86,7 +103,15 @@ public class DishController {
     @PutMapping
     public Result<String> update(@RequestBody DishDto dishDto){
         dishService.update(dishDto);
-        // remove the dish flavors, then stores the new flavors
+
+        // clear all the cache for dishes
+//        Set keys = redisTemplate.keys("dish_*"); // get the keys start with "dish_"
+//        redisTemplate.delete(keys); // delete the keys (clear cache)
+
+        // precisely clear cache
+        // get the key
+        String key = "dish_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key); // delele the cache for the key
         return Result.success("succeed");
     }
 
@@ -107,6 +132,7 @@ public class DishController {
         } else {
             dishService.updateStatusByIds(new Dish(), status, ids);
         }
+
         return Result.success("success");
     }
 
@@ -136,20 +162,37 @@ public class DishController {
      */
     @GetMapping("/list")
 
-    public Result<List<DishDto>> list(Long categoryId){
+    public Result<List<DishDto>> list(Long categoryId, Integer status){
+
+        // initialize dishDtoList, which is used to return
+        List<DishDto> dishDtoList = null;
         if(categoryId == null) {
             return  Result.error("category id error");
         }
+        // get data from redis server
+        // set the key
+        String key = "dish_"+categoryId + "_" + status;
+
+        dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
+
+        // if data exists, return the data
+        if(dishDtoList != null) {
+            return Result.success(dishDtoList);
+        }
+
+        // if data does not exist, query data from database
+
         // get the list with category id and status = 1 only.
         List<Dish> dishList = dishService.getListByCategoryId(categoryId);
-        List<DishDto> dishDtoList = dishList.stream().map(dish -> {
+        dishDtoList = dishList.stream().map(dish -> {
             DishDto dishDto = new DishDto(dish);
             // get the flavors for current dish
             List<DishFlavor> dishFlavors = dishFlavorService.selectByDishId(dishDto.getId());
             dishDto.setFlavors(dishFlavors);
             return dishDto;
         }).collect(Collectors.toList());
-
+        // store the data into redis
+        redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
         return Result.success(dishDtoList);
 
     }
