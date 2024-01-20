@@ -1,6 +1,8 @@
 package org.example.lazzy.common;
 
 import lombok.Data;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ import java.util.Map;
  * @param <T>
  */
 @Data
-public class Result<T> {
+public class Result<T> implements Serializable {
 
     private Integer code; //code：1 succeed，0 and others failed
 

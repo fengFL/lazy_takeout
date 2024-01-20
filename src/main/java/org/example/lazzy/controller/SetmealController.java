@@ -11,6 +11,8 @@ import org.example.lazzy.pojo.SetmealDish;
 import org.example.lazzy.service.SetmealDishService;
 import org.example.lazzy.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,7 @@ public class SetmealController {
      */
     @PostMapping
     @Transactional
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> add(@RequestBody SetmealDto setmealDto){
         // prepare the data for setmeal
         Setmeal setmeal = new Setmeal(setmealDto);
@@ -55,6 +58,7 @@ public class SetmealController {
      *   get pages
      */
     @GetMapping("/page")
+    @Cacheable(value = "setmealCache", key = "#result")
     public Result<PageBean<Setmeal>> getPages(Integer page, Integer pageSize, String name){
         if(page == null || pageSize == null) {
             return Result.error("error");
@@ -72,6 +76,7 @@ public class SetmealController {
      *  get setmeal dish info
      */
     @GetMapping("/{id}")
+    @Cacheable(value = "setmealCache", key = "#result")
     public Result<SetmealDto> getSetmealInfo(@PathVariable Long id){
         if(id == null) {
             return Result.error("error");
@@ -87,6 +92,7 @@ public class SetmealController {
      * mapping
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> update(@RequestBody SetmealDto setmealDto){
         // 1. update setmeal info
         // 1.1 prepare the data for setmeal
@@ -117,6 +123,7 @@ public class SetmealController {
      */
     @Transactional
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     // We need use requestParam annotation when using List<T> to receive data
     public Result<String> delete(@RequestParam List<Long> ids){
 
@@ -141,6 +148,7 @@ public class SetmealController {
     /**
      *  stop selling setmeal(s)
      */
+    @CacheEvict(value = "setmealCache", allEntries = true) // allEntries = true, delete all entries under setmeal
     @PostMapping("/status/{status}")
     public Result<String> updateStatuses(@PathVariable int status, @RequestParam List<Long> ids){
         if(status != 0 && status != 1){
@@ -158,6 +166,7 @@ public class SetmealController {
      *  query setmeal info for a specific categoryId;
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key="#setmeal.categoryId + '' + #setmeal.status" )
     public Result<List<Setmeal>> list(Setmeal setmeal){
         // the category ID and status is encapsulated into setmeal
         // get category ID

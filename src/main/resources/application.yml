@@ -10,6 +10,10 @@ spring:
     password: liufeng
     type: com.alibaba.druid.pool.DruidDataSource
 
+  cache:
+    redis:
+      time-to-live: 1800000 # cache expiration
+
   redis:
     host: 192.168.1.15
     port: 6379
