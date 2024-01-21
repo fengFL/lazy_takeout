@@ -43,7 +43,7 @@ spring:
     allow-bean-definition-overriding: true
   cache:
     redis:
-      time-to-live: 1800000 # cache expiration
+      time-to-live: 1800000 # cache expiration`
 
   redis:
     host: 192.168.1.15

@@ -1,5 +1,9 @@
 package org.example.lazzy.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.example.lazzy.common.Result;
 import org.example.lazzy.dto.DishDto;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/dish")
+@Api(tags = "Apis for dish")
 public class DishController {
     @Autowired
     private DishService dishService;
@@ -46,6 +51,7 @@ public class DishController {
      *
      */
     @PostMapping
+    @ApiOperation("add new dish")
     public Result<String> addDish(@RequestBody DishDto dishDto){
         dishService.addDish(dishDto);
 
@@ -56,7 +62,7 @@ public class DishController {
         // precisely clear cache
         // get the key
         String key = "dish_"+dishDto.getCategoryId()+"_1";
-        redisTemplate.delete(key); // delele the cache for the key
+        redisTemplate.delete(key); // delete the cache for the key
 
         return Result.success("add dish successful");
     }
@@ -65,6 +71,14 @@ public class DishController {
      *  paging query with name
      */
     @GetMapping("/page")
+    @ApiOperation("paging query")
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "page", value = "current page", required = true),
+                    @ApiImplicitParam(name = "pageSize", value = "the number of item displayed", required = true),
+                    @ApiImplicitParam(name = "name", value = "setmeal name", required = false)
+            }
+    )
     public Result<PageBean<DishDto>> getPages(int page, int pageSize, String name){
 
         if ( name != null && name.trim().equals("")){

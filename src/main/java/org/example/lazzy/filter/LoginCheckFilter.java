@@ -37,8 +37,13 @@ public class LoginCheckFilter implements Filter {
                 "/employee/logout",
                 "/backend/**",
                 "/front/**",
-                "/user/login"
+                "/user/login",
 //                "/user/sendMsg"
+                // below four are used for knife4j (swagger)
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
 
 
