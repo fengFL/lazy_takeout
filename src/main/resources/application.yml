@@ -66,5 +66,5 @@ mybatis:
 
 # define a variable for the storage location of imgs
 lazzy:
-  path: /user/local/img/
+  path: /usr/local/img/
 
